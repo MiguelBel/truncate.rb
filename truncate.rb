@@ -21,7 +21,7 @@ def truncate
   opts.each do |opt, arg|
     case opt
     when '--size'
-      size = arg
+      size = arg.to_i
     when '--reference'
       reference = arg
     end
@@ -31,7 +31,19 @@ def truncate
 
   if size
     if path
-      file = File.open(path, 'w')
+      file_content = File.read(path)
+
+      if size.to_i == 0
+        truncated_content_in_bytes = []
+      else
+        truncated_content_in_bytes = file_content.bytes[0..(size - 1)]
+      end
+
+      truncated_content = truncated_content_in_bytes.pack('c*')
+
+      File.open(path, 'w') do |file|
+        file.write(truncated_content)
+      end
 
       Output.success
     else
