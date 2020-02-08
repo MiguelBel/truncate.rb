@@ -66,6 +66,23 @@ class TruncateTest < Test::Unit::TestCase
     assert_equal expected_size, updated_file.length, 'should be truncated to one byte'
   end
 
+  def test_file_truncated_to_ten_bytes
+    content = 'wadus'
+    file = Tempfile.new
+    file.write('wadus')
+
+    assert_equal file.length, content.bytesize, 'the file should have the expected content'
+
+    output = test_truncate("-s 10 #{file.path}")
+    expected_message = nil
+    expected_size = 10
+    updated_file = File.read(file.path)
+
+    assert_equal expected_message, output.message, 'should have an empty message'
+    assert_equal SUCCESS_EXIT_CODE, output.exit_code, 'should be a success_code'
+    assert_equal expected_size, updated_file.length, 'should be truncated to ten bytes'
+  end
+
   private
 
   def test_truncate(cli_options)
