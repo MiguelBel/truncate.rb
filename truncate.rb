@@ -5,11 +5,13 @@ require_relative 'output'
 def truncate
   opts = GetoptLong.new(
     [ '--size', '-s', GetoptLong::REQUIRED_ARGUMENT ],
-    [ '--reference', '-r', GetoptLong::REQUIRED_ARGUMENT ]
+    [ '--reference', '-r', GetoptLong::REQUIRED_ARGUMENT ],
+    [ '--no-create', '-c', GetoptLong::NO_ARGUMENT ]
   )
 
   size = nil
   reference = nil
+  create = true
 
   opts.each do |opt, arg|
     case opt
@@ -17,6 +19,8 @@ def truncate
       size = arg.to_i
     when '--reference'
       reference = arg
+    when '--no-create'
+      create = false
     end
   end
 
@@ -30,8 +34,16 @@ def truncate
     return Output.failure(:missing_file_path_message)
   end
 
-  file_content = File.read(path)
-  file_content_in_bytes = file_content.bytes
+  if !create
+    return Output.success
+  end
+
+  if File.exists?(path)
+    file_content = File.read(path)
+    file_content_in_bytes = file_content.bytes
+  else
+    file_content_in_bytes = []
+  end
 
   truncated_content_in_bytes = cut_or_crop_bytes(file_content_in_bytes, size)
 

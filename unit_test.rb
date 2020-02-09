@@ -45,7 +45,7 @@ class TruncateTest < Test::Unit::TestCase
     updated_file = File.read(file.path)
 
     assert_equal expected_message, output.message, 'should have an empty message'
-    assert_equal SUCCESS_EXIT_CODE, output.exit_code, 'should be a success_code'
+    assert_equal SUCCESS_EXIT_CODE, output.exit_code, 'should be a success code'
     assert_equal expected_size, updated_file.length, 'should be truncated to zero bytes'
   end
 
@@ -62,7 +62,7 @@ class TruncateTest < Test::Unit::TestCase
     updated_file = File.read(file.path)
 
     assert_equal expected_message, output.message, 'should have an empty message'
-    assert_equal SUCCESS_EXIT_CODE, output.exit_code, 'should be a success_code'
+    assert_equal SUCCESS_EXIT_CODE, output.exit_code, 'should be a success code'
     assert_equal expected_size, updated_file.length, 'should be truncated to one byte'
   end
 
@@ -79,8 +79,37 @@ class TruncateTest < Test::Unit::TestCase
     updated_file = File.read(file.path)
 
     assert_equal expected_message, output.message, 'should have an empty message'
-    assert_equal SUCCESS_EXIT_CODE, output.exit_code, 'should be a success_code'
+    assert_equal SUCCESS_EXIT_CODE, output.exit_code, 'should be a success code'
     assert_equal expected_size, updated_file.length, 'should be truncated to ten bytes'
+  end
+
+  def test_creates_file_if_does_not_exists
+    path = "/tmp/#{Time.now.to_i}-#{rand(999999999)}"
+
+    assert_equal false, File.exists?(path), 'file should not exists'
+    output = test_truncate("-s 10 #{path}")
+    expected_message = nil
+    expected_size = 10
+    created_file = File.read(path)
+
+    assert_equal expected_message, output.message, 'should have an empty message'
+    assert_equal SUCCESS_EXIT_CODE, output.exit_code, 'should be a success code'
+    assert_equal expected_size, created_file.length, 'should be created to ten bytes'
+  end
+
+  def test_option_for_not_create_file_if_does_not_exists
+    path = "/tmp/#{Time.now.to_i}-#{rand(999999999)}"
+
+    assert_equal false, File.exists?(path), 'file should not exists'
+
+    output = test_truncate("-s 10 -c #{path}")
+    expected_message = nil
+    expected_size = 10
+    file_existence = File.exists?(path)
+
+    assert_equal expected_message, output.message, 'should have an empty message'
+    assert_equal SUCCESS_EXIT_CODE, output.exit_code, 'should be a success code'
+    assert_equal false, file_existence, 'should not be created'
   end
 
   private
