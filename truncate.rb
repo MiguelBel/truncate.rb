@@ -6,12 +6,14 @@ def truncate
   opts = GetoptLong.new(
     [ '--size', '-s', GetoptLong::REQUIRED_ARGUMENT ],
     [ '--reference', '-r', GetoptLong::REQUIRED_ARGUMENT ],
-    [ '--no-create', '-c', GetoptLong::NO_ARGUMENT ]
+    [ '--no-create', '-c', GetoptLong::NO_ARGUMENT ],
+    [ '--io-blocks', '-o', GetoptLong::NO_ARGUMENT ],
   )
 
   size = nil
   reference = nil
   create = true
+  block = false
 
   opts.each do |opt, arg|
     case opt
@@ -21,6 +23,8 @@ def truncate
       reference = arg
     when '--no-create'
       create = false
+    when '--io-blocks'
+      block = true
     end
   end
 
@@ -36,6 +40,12 @@ def truncate
 
   if !create
     return Output.success
+  end
+
+  if block
+    File.open(path, 'w')
+
+    size = File.stat(path).blksize * size
   end
 
   if File.exists?(path)

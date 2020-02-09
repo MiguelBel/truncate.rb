@@ -112,6 +112,40 @@ class TruncateTest < Test::Unit::TestCase
     assert_equal false, file_existence, 'should not be created'
   end
 
+  def test_file_truncates_to_two_block_size
+    block_size = 4096
+    content = 'w' * block_size * 3
+    file = Tempfile.new
+    file.write(content)
+
+    assert_equal file.length, content.bytesize, 'the file should have the expected content'
+
+    output = test_truncate("-s 2 -o #{file.path}")
+    expected_message = nil
+    expected_size = block_size * 2
+    updated_file = File.read(file.path)
+
+    assert_equal expected_message, output.message, 'should have an empty message'
+    assert_equal SUCCESS_EXIT_CODE, output.exit_code, 'should be a success code'
+    assert_equal expected_size, updated_file.length, 'should be truncated to two block size'
+  end
+
+  def test_file_truncates_to_two_block_size_a_non_existing_file
+    block_size = 4096
+    path = "/tmp/#{Time.now.to_i}-#{rand(999999999)}"
+
+    assert_equal false, File.exists?(path), 'file should not exists'
+
+    output = test_truncate("-s 2 -o #{path}")
+    expected_message = nil
+    expected_size = block_size * 2
+    updated_file = File.read(path)
+
+    assert_equal expected_message, output.message, 'should have an empty message'
+    assert_equal SUCCESS_EXIT_CODE, output.exit_code, 'should be a success code'
+    assert_equal expected_size, updated_file.length, 'should be truncated to two block size'
+  end
+
   private
 
   def test_truncate(cli_options)
