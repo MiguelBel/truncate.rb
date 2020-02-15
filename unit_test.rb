@@ -164,6 +164,18 @@ class TruncateTest < Test::Unit::TestCase
     assert_equal expected_size, updated_file.bytesize, 'should be truncated to two block size'
   end
 
+  def test_returns_an_error_if_the_reference_file_do_not_exists
+    another_file = Tempfile.new
+    expected_message = <<~EOF
+      truncate: cannot stat ‘NON_EXISTING_FILE’: No such file or directory
+    EOF
+
+    output = test_truncate("-r NON_EXISTING_FILE #{another_file.path}")
+
+    assert_equal expected_message, output.message, 'should return an error'
+    assert_equal FAILURE_EXIT_CODE, output.exit_code, 'should be a success code'
+  end
+
   def test_provides_help_option
     output = test_truncate("-h")
 

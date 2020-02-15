@@ -53,6 +53,12 @@ def truncate
   end
 
   if reference
+    if !File.exists?(reference)
+      return Output.failure(:missing_reference_path, path: reference)
+    end
+  end
+
+  if reference
     size = File.stat(reference).size
   end
 

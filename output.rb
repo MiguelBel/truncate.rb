@@ -5,8 +5,13 @@ class Output
   attr_reader :message, :exit_code
 
   class << self
-    def failure(message_identifier)
-      message = Messages.send(message_identifier)
+    def failure(message_identifier, opts = nil)
+      if opts
+        message = Messages.send(message_identifier, opts)
+      else
+        message = Messages.send(message_identifier)
+      end
+
       new(message, FAILURE_EXIT_CODE)
     end
 
@@ -78,6 +83,12 @@ class Messages
         #{VERSION}
 
         Truncate rewrite in ruby: <https://github.com/MiguelBel/truncate.rb>
+      EOF
+    end
+
+    def missing_reference_path(opts)
+      <<~EOF
+        truncate: cannot stat ‘#{opts[:path]}’: No such file or directory
       EOF
     end
   end
