@@ -72,5 +72,13 @@ class Messages
         Truncate rewrite in ruby: <https://github.com/MiguelBel/truncate.rb>
       EOF
     end
+
+    def version
+      <<~EOF
+        #{VERSION}
+
+        Truncate rewrite in ruby: <https://github.com/MiguelBel/truncate.rb>
+      EOF
+    end
   end
 end

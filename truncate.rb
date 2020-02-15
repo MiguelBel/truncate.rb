@@ -2,13 +2,16 @@ require 'getoptlong'
 
 require_relative 'output'
 
+VERSION = '0.1'
+
 def truncate
   opts = GetoptLong.new(
     [ '--size', '-s', GetoptLong::REQUIRED_ARGUMENT ],
     [ '--reference', '-r', GetoptLong::REQUIRED_ARGUMENT ],
     [ '--no-create', '-c', GetoptLong::NO_ARGUMENT ],
     [ '--io-blocks', '-o', GetoptLong::NO_ARGUMENT ],
-    [ '--help', '-h', GetoptLong::NO_ARGUMENT ]
+    [ '--help', '-h', GetoptLong::NO_ARGUMENT ],
+    [ '--version', '-v', GetoptLong::NO_ARGUMENT ],
   )
 
   size = nil
@@ -16,6 +19,7 @@ def truncate
   create = true
   block = false
   help = false
+  version = false
 
   opts.each do |opt, arg|
     case opt
@@ -28,15 +32,13 @@ def truncate
     when '--io-blocks'
       block = true
     when '--help'
-      help = true
+      return Output.success(:help)
+    when '--version'
+      return Output.success(:version)
     end
   end
 
   path = ARGV.shift
-
-  if help
-    return Output.success(:help)
-  end
 
   if !size && !reference
     return Output.failure(:missing_size_or_reference)

@@ -173,6 +173,15 @@ class TruncateTest < Test::Unit::TestCase
     assert_equal SUCCESS_EXIT_CODE, output.exit_code, 'should be a success code'
   end
 
+  def test_provides_version
+    output = test_truncate("-v")
+
+    partial_expected_message = VERSION
+
+    assert_match partial_expected_message, output.message, 'should return the version message'
+    assert_equal SUCCESS_EXIT_CODE, output.exit_code, 'should be a success code'
+  end
+
   private
 
   def test_truncate(cli_options)
