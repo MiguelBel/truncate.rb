@@ -8,12 +8,14 @@ def truncate
     [ '--reference', '-r', GetoptLong::REQUIRED_ARGUMENT ],
     [ '--no-create', '-c', GetoptLong::NO_ARGUMENT ],
     [ '--io-blocks', '-o', GetoptLong::NO_ARGUMENT ],
+    [ '--help', '-h', GetoptLong::NO_ARGUMENT ]
   )
 
   size = nil
   reference = nil
   create = true
   block = false
+  help = false
 
   opts.each do |opt, arg|
     case opt
@@ -25,21 +27,31 @@ def truncate
       create = false
     when '--io-blocks'
       block = true
+    when '--help'
+      help = true
     end
   end
 
   path = ARGV.shift
 
-  if !size
-    return Output.failure(:missing_size_or_reference_message)
+  if help
+    return Output.success(:help)
+  end
+
+  if !size && !reference
+    return Output.failure(:missing_size_or_reference)
   end
 
   if !path
-    return Output.failure(:missing_file_path_message)
+    return Output.failure(:missing_file_path)
   end
 
   if !create
     return Output.success
+  end
+
+  if reference
+    size = File.stat(reference).size
   end
 
   if block

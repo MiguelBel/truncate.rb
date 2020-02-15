@@ -146,6 +146,33 @@ class TruncateTest < Test::Unit::TestCase
     assert_equal expected_size, updated_file.length, 'should be truncated to two block size'
   end
 
+  def test_truncates_file_to_another_file_size
+    content = 'a' * 100
+    a_file = Tempfile.new
+    a_file.write(content)
+    another_file = Tempfile.new
+
+    assert_not_equal another_file.length, a_file.length, 'the file should not have the truncated size'
+
+    output = test_truncate("-r #{a_file.path} #{another_file.path}")
+    expected_message = nil
+    expected_size = a_file.length
+    updated_file = File.read(another_file.path)
+
+    assert_equal expected_message, output.message, 'should have an empty message'
+    assert_equal SUCCESS_EXIT_CODE, output.exit_code, 'should be a success code'
+    assert_equal expected_size, updated_file.bytesize, 'should be truncated to two block size'
+  end
+
+  def test_provides_help_option
+    output = test_truncate("-h")
+
+    partial_expected_message = 'Shrink or extend the size of each FILE'
+
+    assert_match partial_expected_message, output.message, 'should return the help message'
+    assert_equal SUCCESS_EXIT_CODE, output.exit_code, 'should be a success code'
+  end
+
   private
 
   def test_truncate(cli_options)
